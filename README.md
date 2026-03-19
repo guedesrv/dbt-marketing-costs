@@ -15,7 +15,7 @@
 
 ---
 
-## 🎯 Visão Geral
+## Visão Geral
 
 ### O Problema
 
@@ -43,7 +43,7 @@ Três plataformas de publicidade (Google Ads, Facebook Ads, TikTok Ads) enviam d
 
 ---
 
-## 🏗️ Arquitetura de Dados
+## Arquitetura de Dados
 
 ### Fluxo de Transformação (ELT)
 
@@ -130,7 +130,7 @@ Três plataformas de publicidade (Google Ads, Facebook Ads, TikTok Ads) enviam d
 
 ---
 
-## 🧠 Decisões de Engenharia
+## Decisões de Engenharia
 
 ### 1. **Por que Camada Staging com Parsing JSON?**
 
@@ -206,7 +206,7 @@ Roda via `dbt test` antes de deployments.
 
 ---
 
-## ⚙️ Como Executar
+## Como Executar
 
 ### Pré-requisitos
 
@@ -319,7 +319,7 @@ Abre navegador em `http://localhost:8000` com DAG completo.
 
 ---
 
-## 📑 Estrutura de Modelos
+## Estrutura de Modelos
 
 ### Diretório
 
@@ -354,7 +354,7 @@ models/
 
 ---
 
-## 📊 Lineage & DAG
+## Lineage & DAG
 
 ```
                   ┌─ Sources ─────────────────────┐
@@ -526,7 +526,7 @@ Se a estrutura do JSON mudar:
 ---
 
 **Última atualização**: Março 2026  
-**Autor**: Analytics Engineering Team  
+**Autor**: Rodrigo Guedes  
 **Versão**: 1.0.0
 
 
