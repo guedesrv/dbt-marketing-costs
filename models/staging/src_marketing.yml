@@ -1,0 +1,126 @@
+# ============================================================================
+# Definição das SOURCES (Tabelas Brutas)
+# ============================================================================
+# Estas são as tabelas ingeridas pelo Fivetran no schema raw_marketing
+# Contém dados em formato JSON no campo raw_payload
+# ============================================================================
+
+version: 2
+
+sources:
+  - name: fivetran_raw
+    description: "Dados brutos ingeridos pelo Fivetran de plataformas de publicidade"
+    database: "{{ env_var('DBT_SNOWFLAKE_DATABASE', 'analytics') }}"
+    schema: raw_marketing
+    tables:
+      
+      # -----------------------------------------------------------------------
+      # GOOGLE ADS
+      # -----------------------------------------------------------------------
+      - name: raw_google_ads
+        description: |
+          Dados brutos do Google Ads ingeridos via Fivetran.
+          
+          **Estrutura do raw_payload JSON:**
+          ```json
+          {
+            "campaign_id": 1,
+            "campaign_name": "Summer Campaign 2023",
+            "cost": 150.50,
+            "date": "2023-10-01"
+          }
+          ```
+        
+        columns:
+          - name: id
+            description: "Chave primária única da linha"
+            data_type: varchar
+            tests:
+              - unique
+              - not_null
+              
+          - name: synced_timestamp
+            description: "Timestamp de sincronização pelo Fivetran"
+            data_type: timestamp
+            tests:
+              - not_null
+              
+          - name: raw_payload
+            description: "JSON bruto com toda a carga de dados do Google Ads"
+            data_type: variant
+            tests:
+              - not_null
+
+      # -----------------------------------------------------------------------
+      # FACEBOOK ADS
+      # -----------------------------------------------------------------------
+      - name: raw_facebook_ads
+        description: |
+          Dados brutos do Facebook Ads ingeridos via Fivetran.
+          
+          **Estrutura do raw_payload JSON:**
+          ```json
+          {
+            "campaign_id": "A1",
+            "campaign_name": "Brand Awareness",
+            "amount_spent": 200.00,
+            "spending_date": "2023-10-01"
+          }
+          ```
+        
+        columns:
+          - name: id
+            description: "Chave primária única da linha"
+            data_type: varchar
+            tests:
+              - unique
+              - not_null
+              
+          - name: synced_timestamp
+            description: "Timestamp de sincronização pelo Fivetran"
+            data_type: timestamp
+            tests:
+              - not_null
+              
+          - name: raw_payload
+            description: "JSON bruto com toda a carga de dados do Facebook Ads"
+            data_type: variant
+            tests:
+              - not_null
+
+      # -----------------------------------------------------------------------
+      # TIKTOK ADS
+      # -----------------------------------------------------------------------
+      - name: raw_tiktok_ads
+        description: |
+          Dados brutos do TikTok Ads ingeridos via Fivetran.
+          
+          **Estrutura do raw_payload JSON:**
+          ```json
+          {
+            "camp_id": "T1",
+            "camp_name": "Summer Promo",
+            "spend": 50.00,
+            "stat_time": "2023-10-01"
+          }
+          ```
+        
+        columns:
+          - name: id
+            description: "Chave primária única da linha"
+            data_type: varchar
+            tests:
+              - unique
+              - not_null
+              
+          - name: synced_timestamp
+            description: "Timestamp de sincronização pelo Fivetran"
+            data_type: timestamp
+            tests:
+              - not_null
+              
+          - name: raw_payload
+            description: "JSON bruto com toda a carga de dados do TikTok Ads"
+            data_type: variant
+            tests:
+              - not_null

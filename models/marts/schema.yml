@@ -1,0 +1,340 @@
+# ============================================================================
+# Documentação e Testes dos Modelos de Marts
+# ============================================================================
+# Star Schema (Modelo Estrela) para Análise de Custos de Marketing
+# ============================================================================
+
+version: 2
+
+models:
+  # =========================================================================
+  # DIM_CAMPAIGNS - Dimensão de Campanhas
+  # =========================================================================
+  - name: dim_campaigns
+    description: |
+      Dimensão que conforma todas as campanhas únicas de publicidade.
+      
+      **Cada linha representa uma campanha única** definida pela combinação
+      de (campaign_id, platform). É uma dimensão do tipo Type 1 (Slowly 
+      Changing Dimension) - sobrescreve histórico ao atualizar.
+      
+      **Uso**: Filtros no Metabase, agregações por campanha, drill-downs.
+    
+    columns:
+      - name: campaign_sk
+        description: |
+          Surrogate Key (chave substituta) gerada via hash MD5 de 
+          (campaign_id + platform). Garante identidade única e imutável.
+        data_type: varchar
+        tests:
+          - unique
+          - not_null
+
+      - name: campaign_id
+        description: "ID da campanha conforme a plataforma de origem"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: campaign_name
+        description: "Nome descritivo da campanha"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: platform
+        description: "Plataforma de publicidade"
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Google Ads", "Facebook Ads", "TikTok Ads"]
+
+      - name: dbt_created_at
+        description: "Timestamp de criação do registro no dbt"
+        data_type: timestamp
+
+      - name: dbt_updated_at
+        description: "Timestamp de última atualização no dbt"
+        data_type: timestamp
+
+  # =========================================================================
+  # DIM_PLATFORMS - Dimensão de Plataformas
+  # =========================================================================
+  - name: dim_platforms
+    description: |
+      Dimensão que conforma as plataformas de publicidade suportadas.
+      
+      **Cada linha representa uma plataforma única**. É uma tabela pequena,
+      relativamente estática, contendo apenas 3 registros (Google, Facebook, TikTok).
+      
+      **Uso**: Filtros por plataforma no Metabase, agregações, drill-downs.
+    
+    columns:
+      - name: platform_sk
+        description: |
+          Surrogate Key (chave substituta) gerada via hash MD5 do 
+          platform_name. Garante identidade única e imutável.
+        data_type: varchar
+        tests:
+          - unique
+          - not_null
+
+      - name: platform_name
+        description: "Nome da plataforma (Google Ads, Facebook Ads, TikTok Ads)"
+        data_type: varchar
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              values: ["Google Ads", "Facebook Ads", "TikTok Ads"]
+
+      - name: platform_description
+        description: "Descrição detalhada e contexto da plataforma"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: dbt_created_at
+        description: "Timestamp de criação do registro no dbt"
+        data_type: timestamp
+
+      - name: dbt_updated_at
+        description: "Timestamp de última atualização no dbt"
+        data_type: timestamp
+
+  # =========================================================================
+  # DIM_DATES - Dimensão de Calendário
+  # =========================================================================
+  - name: dim_dates
+    description: |
+      Dimensão de calendário para análises temporais de performance.
+      
+      **Cada linha representa um dia do calendário**. Inclui atributos
+      úteis como year, month, week, day_of_week, is_weekend, is_holiday.
+      
+      **Uso**: Análises por período, série temporal, sazonalidade.
+    
+    columns:
+      - name: date_sk
+        description: |
+          Surrogate Key (chave substituta) gerada via hash MD5 da 
+          full_date. Garante identidade única e imutável.
+        data_type: varchar
+        tests:
+          - unique
+          - not_null
+
+      - name: full_date
+        description: "Data completa (YYYY-MM-DD)"
+        data_type: date
+        tests:
+          - not_null
+          - unique
+
+      - name: year
+        description: "Ano (ex: 2023, 2024)"
+        data_type: integer
+        tests:
+          - not_null
+
+      - name: month
+        description: |
+          Mês do ano (1-12).
+          
+          **Exemplos**: 1 (janeiro), 10 (outubro), 12 (dezembro)
+          **Validações**: Sempre entre 1 e 12
+        data_type: integer
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "month >= 1 and month <= 12"
+              config:
+                error_if: "> 0"
+
+      - name: week
+        description: |
+          Semana do ano (1-53).
+          
+          **Exemplos**: 1 (primeira semana), 52 (penúltima semana)
+          **Validações**: Sempre entre 1 e 53
+        data_type: integer
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "week >= 1 and week <= 53"
+              config:
+                error_if: "> 0"
+
+      - name: day_of_week
+        description: |
+          Dia da semana (1-7).
+          - 1 = Segunda-feira
+          - 2 = Terça-feira
+          - 3 = Quarta-feira
+          - 4 = Quinta-feira
+          - 5 = Sexta-feira
+          - 6 = Sábado
+          - 7 = Domingo
+          
+          **Validações**: Sempre entre 1 e 7
+        data_type: integer
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "day_of_week >= 1 and day_of_week <= 7"
+              config:
+                error_if: "> 0"
+
+      - name: day_name
+        description: "Nome do dia em inglês (Monday, Tuesday, etc)"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: is_weekend
+        description: "Boolean: true se é sábado ou domingo"
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: is_holiday
+        description: "Boolean: true se é feriado (extensível com dados reais)"
+        data_type: boolean
+        tests:
+          - not_null
+
+      - name: dbt_created_at
+        description: "Timestamp de criação do registro no dbt"
+        data_type: timestamp
+
+      - name: dbt_updated_at
+        description: "Timestamp de última atualização no dbt"
+        data_type: timestamp
+
+  # =========================================================================
+  # FCT_CAMPAIGN_PERFORMANCE - Tabela Fato Estrela
+  # =========================================================================
+  - name: fct_campaign_performance
+    description: |
+      **TABELA FATO PRINCIPAL** do modelo estrela.
+      
+      Consolida as métricas de performance (custos) de campanhas de 
+      publicidade em uma granularidade de **1 linha = 1 campanha + 1 dia**.
+      
+      **Chaves estrangeiras**:
+      - campaign_sk → dim_campaigns
+      - date_sk → dim_dates
+      - platform_sk → dim_platforms
+      
+      **Métricas (fatos aditivos)**:
+      - total_ad_cost: custo total da campanha no dia (em USD)
+      
+      **Uso**: Dashboards no Metabase, análises de ROI, tendências de gasto.
+    
+    columns:
+      - name: campaign_sk
+        description: |
+          Chave estrangeira (Foreign Key) relacionando à dim_campaigns.
+          Permite joins semânticos no Metabase.
+        data_type: varchar
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_campaigns')
+              field: campaign_sk
+
+      - name: date_sk
+        description: |
+          Chave estrangeira (Foreign Key) relacionando à dim_dates.
+          Permite joins e análises temporais no Metabase.
+        data_type: varchar
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_dates')
+              field: date_sk
+
+      - name: platform_sk
+        description: |
+          Chave estrangeira (Foreign Key) relacionando à dim_platforms.
+          Desnormalizado por performance (poderia ser obtido via dim_campaigns,
+          mas incluído aqui para otimizar queries no Metabase).
+        data_type: varchar
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_platforms')
+              field: platform_sk
+
+      - name: total_ad_cost
+        description: |
+          Métrica aditiva: Custo total em USD da campanha para o dia.
+          Precisão: 2 casas decimais (NUMERIC(10,2)).
+          
+          **Exemplos**: 150.50, 200.00, 50.00
+          
+          Se houver múltiplos registros de uma campanha no mesmo dia 
+          (ex: múltiplas ingestões do Fivetran), este valor é agregado (SUM).
+          
+          **Validações**: 
+          - Sempre >= 0 (sem custos negativos)
+          - Máximo 9,999,999.99 (8 dígitos + 2 decimais)
+        data_type: numeric(10, 2)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "total_ad_cost >= 0"
+              config:
+                error_if: "> 0"
+          - dbt_utils.expression_is_true:
+              expression: "total_ad_cost <= 9999999.99"
+              config:
+                error_if: "> 0"
+          - dbt_utils.not_null_proportion:
+              at_least: 0.99
+
+      - name: number_of_records
+        description: |
+          Quantidade de registros brutos consolidados nesta linha.
+          Útil para auditoria de dados e detecção de duplicatas.
+        data_type: integer
+        tests:
+          - not_null
+
+      - name: dbt_created_at
+        description: "Timestamp de criação do registro no dbt"
+        data_type: timestamp
+
+      - name: dbt_updated_at
+        description: "Timestamp de última atualização no dbt"
+        data_type: timestamp
+
+    # =====================================================================
+    # TESTES CUSTOMIZADOS DA TABELA FATO
+    # =====================================================================
+    # Testes em nível de tabela para validar integridade e lógica de negócio
+    tests:
+      # Testes de Recência: Dados devem ser atualizados nos últimos 7 dias
+      - dbt_utils.recency:
+          datepart: day
+          field: dbt_updated_at
+          interval: 7
+          config:
+            severity: warn  # Aviso em vez de erro se falhar
+      
+      # Teste Customizado: Garantir que nenhuma campanha tenha custo zerado
+      - dbt_utils.expression_is_true:
+          expression: "total_ad_cost > 0"
+          config:
+            where: "1=1"  # Validar todos os registros
+            error_if: "> 0"
+            description: "Todas as linhas devem ter custo > 0"
+      
+      # Teste Customizado: Garantir que number_of_records é sempre > 0
+      - dbt_utils.expression_is_true:
+          expression: "number_of_records > 0"
+          config:
+            error_if: "> 0"
+            description: "Todas as linhas devem ter pelo menos 1 registro fonte"
+

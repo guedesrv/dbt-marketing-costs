@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: fivetran_raw
+    database: raw_database # Substitua pelo seu DB real no Snowflake
+    schema: marketing_schema # Substitua pelo schema do Fivetran
+    tables:
+      - name: raw_facebook_ads
+      - name: raw_google_ads
+      - name: raw_tiktok_ads

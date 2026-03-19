@@ -1,0 +1,61 @@
+# ============================================================================
+# dbt Project Configuration - Marketing Analytics dbt Project
+# ============================================================================
+# Projeto profissional de Analytics Engineering para normalização de dados de
+# custo de marketing (Google Ads, Facebook Ads, TikTok Ads) com Star Schema
+# ============================================================================
+
+name: 'marketing_analytics'
+version: '1.0.0'
+config-version: 2
+profile: 'marketing_analytics'
+
+# Caminhos dos artefatos
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Configurações gerais
+vars:
+  'dbt_utils_dispatch_list': ['dbt_utils']
+
+# Configuração de materialização por camada
+models:
+  marketing_analytics:
+    # Staging: VIEWs (transformações lógicas)
+    staging:
+      +materialized: view
+      +tags: ["staging", "daily"]
+      
+    # Intermediate: EPHEMERAL (não materializado, inlindo em outras queries)
+    intermediate:
+      +materialized: ephemeral
+      +tags: ["intermediate", "daily"]
+      
+    # Marts: TABLEs (tabelas prontas para BI)
+    marts:
+      +materialized: table
+      +tags: ["marts", "daily"]
+      +indexes:
+        - columns: ["campaign_sk"]
+          type: "automatic"
+        - columns: ["date_sk"]
+          type: "automatic"
+        - columns: ["platform_sk"]
+          type: "automatic"
+
+# Configurações SQL
+dbt-core:
+  require-dbt-version: ">=1.0.0"
+
+# Seeds (dados estáticos)
+seeds:
+  marketing_analytics:
+    +schema: "raw_marketing"

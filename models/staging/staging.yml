@@ -1,0 +1,225 @@
+# ============================================================================
+# Documentação e Testes dos Modelos de Staging
+# ============================================================================
+
+version: 2
+
+models:
+  # =========================================================================
+  # stg_google_ads
+  # =========================================================================
+  - name: stg_google_ads
+    description: |
+      Modelo normalizado de Google Ads.
+      
+      Transforma dados brutos do JSON em colunas tipadas e padronizadas.
+      Todos os nomes de colunas são canonicalizados para funcionar com o 
+      UNION ALL das plataformas de ads na camada intermediate.
+    
+    columns:
+      - name: raw_id
+        description: "ID único da linha na tabela bruta (fonte primária)"
+        data_type: varchar
+        tests:
+          - not_null
+          - unique
+
+      - name: synced_timestamp
+        description: "Timestamp de sincronização pelo Fivetran"
+        data_type: timestamp
+        tests:
+          - not_null
+
+      - name: campaign_id
+        description: "ID da campanha (normalizado para string)"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: campaign_name
+        description: "Nome descritivo da campanha"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: ad_cost
+        description: |
+          Custo em USD da campanha (precisão: 2 casas decimais).
+          
+          **Exemplos**: 150.50, 200.00, 50.00
+          **Validações**: Sempre >= 0 (sem custos negativos)
+        data_type: numeric(10, 2)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "ad_cost >= 0"
+              config:
+                error_if: "> 0"
+
+      - name: ad_date
+        description: |
+          Data de execução da campanha (formato: YYYY-MM-DD).
+          
+          **Exemplos**: 2023-10-01, 2023-10-02
+          **Validações**: Data não pode ser no futuro
+        data_type: date
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "ad_date <= current_date()"
+              config:
+                error_if: "> 0"
+
+      - name: platform
+        description: "Constante: sempre 'Google Ads' (valores válidos documentados no accepted_values)"
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Google Ads"]
+
+  # =========================================================================
+  # stg_facebook_ads
+  # =========================================================================
+  - name: stg_facebook_ads
+    description: |
+      Modelo normalizado de Facebook Ads.
+      
+      Transforma dados brutos do JSON em colunas tipadas e padronizadas.
+      Todos os nomes de colunas são canonicalizados para funcionar com o 
+      UNION ALL das plataformas de ads na camada intermediate.
+    
+    columns:
+      - name: raw_id
+        description: "ID único da linha na tabela bruta (fonte primária)"
+        data_type: varchar
+        tests:
+          - not_null
+          - unique
+
+      - name: synced_timestamp
+        description: "Timestamp de sincronização pelo Fivetran"
+        data_type: timestamp
+        tests:
+          - not_null
+
+      - name: campaign_id
+        description: "ID da campanha (normalizado para string)"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: campaign_name
+        description: "Nome descritivo da campanha"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: ad_cost
+        description: |
+          Custo em USD da campanha (precisão: 2 casas decimais).
+          
+          **Exemplos**: 200.00, 150.50, 100.00
+          **Validações**: Sempre >= 0 (sem custos negativos)
+        data_type: numeric(10, 2)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "ad_cost >= 0"
+              config:
+                error_if: "> 0"
+
+      - name: ad_date
+        description: |
+          Data de execução da campanha (formato: YYYY-MM-DD).
+          
+          **Exemplos**: 2023-10-01, 2023-10-02
+          **Validações**: Data não pode ser no futuro
+        data_type: date
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "ad_date <= current_date()"
+              config:
+                error_if: "> 0"
+
+      - name: platform
+        description: "Constante: sempre 'Facebook Ads' (valores válidos documentados no accepted_values)"
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Facebook Ads"]
+
+  # =========================================================================
+  # stg_tiktok_ads
+  # =========================================================================
+  - name: stg_tiktok_ads
+    description: |
+      Modelo normalizado de TikTok Ads.
+      
+      Transforma dados brutos do JSON em colunas tipadas e padronizadas.
+      Todos os nomes de colunas são canonicalizados para funcionar com o 
+      UNION ALL das plataformas de ads na camada intermediate.
+    
+    columns:
+      - name: raw_id
+        description: "ID único da linha na tabela bruta (fonte primária)"
+        data_type: varchar
+        tests:
+          - not_null
+          - unique
+
+      - name: synced_timestamp
+        description: "Timestamp de sincronização pelo Fivetran"
+        data_type: timestamp
+        tests:
+          - not_null
+
+      - name: campaign_id
+        description: "ID da campanha (normalizado para string)"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: campaign_name
+        description: "Nome descritivo da campanha"
+        data_type: varchar
+        tests:
+          - not_null
+
+      - name: ad_cost
+        description: |
+          Custo em USD da campanha (precisão: 2 casas decimais).
+          
+          **Exemplos**: 50.00, 75.50, 100.00
+          **Validações**: Sempre >= 0 (sem custos negativos)
+        data_type: numeric(10, 2)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "ad_cost >= 0"
+              config:
+                error_if: "> 0"
+
+      - name: ad_date
+        description: |
+          Data de execução da campanha (formato: YYYY-MM-DD).
+          
+          **Exemplos**: 2023-10-01, 2023-10-02
+          **Validações**: Data não pode ser no futuro
+        data_type: date
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "ad_date <= current_date()"
+              config:
+                error_if: "> 0"
+
+      - name: platform
+        description: "Constante: sempre 'TikTok Ads' (valores válidos documentados no accepted_values)"
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["TikTok Ads"]
