@@ -222,7 +222,42 @@ Roda via `dbt test` antes de deployments.
 cd dbt-marketing-costs
 ```
 
-#### 2. Configure Credenciais Snowflake
+#### 2. Configure Ambiente Python
+
+Crie um ambiente virtual Python isolado:
+
+```bash
+# Criar ambiente virtual
+python3 -m venv venv
+
+# Ativar ambiente (macOS/Linux)
+source venv/bin/activate
+
+# Ou no Windows:
+# venv\Scripts\activate
+```
+
+Instale `dbt-core` e dependências:
+
+```bash
+pip install --upgrade pip
+pip install dbt-core dbt-snowflake
+```
+
+Verifique a instalação:
+
+```bash
+dbt --version
+python --version
+```
+
+Esperado:
+```
+dbt version: 1.5.0 (ou superior)
+Python version: 3.8+
+```
+
+#### 3. Configure Credenciais Snowflake
 
 Crie/edite `~/.dbt/profiles.yml`:
 
@@ -243,7 +278,7 @@ marketing_analytics:
       client_session_keep_alive: False
 ```
 
-#### 3. Instale Dependências
+#### 4. Instale Dependências
 
 ```bash
 dbt deps
@@ -251,7 +286,7 @@ dbt deps
 
 Isso instala `dbt-utils` (macro library) definida em `packages.yml`.
 
-#### 4. Crie Schema e Teste Conexão
+#### 5. Crie Schema e Teste Conexão
 
 ```bash
 dbt debug
