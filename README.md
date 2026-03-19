@@ -219,7 +219,7 @@ Roda via `dbt test` antes de deployments.
 #### 1. Clone e Entre no Diretório
 
 ```bash
-cd dbt_marketing_costs
+cd dbt-marketing-costs
 ```
 
 #### 2. Configure Credenciais Snowflake
