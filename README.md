@@ -588,22 +588,20 @@ models/
 
 ## 🧪 Qualidade de Dados
 
-Rodamos testes automáticos em cada build:
+Rodamos **77 testes automáticos** em cada build para garantir integridade dos dados:
 
 ```bash
 $ dbt test
-
-Completed successfully
-
-Executed 15 tests, 0 failed.
+Done. PASS=76 WARN=1 ERROR=0 SKIP=0 TOTAL=77
 ```
 
-**Testes incluem**:
+**Tipos de Testes**:
 - `unique`: Chaves primárias sem duplicatas
 - `not_null`: Colunas críticas preenchidas
 - `accepted_values`: Plataforma in ('Google', 'Facebook', 'TikTok')
-- `relationships`: Chaves estrangeiras válidas
-- `recency`: Dados não mais velhos que X dias
+- `relationships`: Chaves estrangeiras válidas (integridade referencial)
+- `recency`: Dados não mais velhos que 7 dias
+- **Customizados**: test_fct_no_duplicates, test_negative_costs, test_future_dates, test_expected_platforms, test_fct_foreign_keys_integrity
 
 ---
 
