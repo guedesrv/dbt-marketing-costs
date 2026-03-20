@@ -9,8 +9,8 @@ version: 2
 
 sources:
   - name: fivetran_raw
-    description: "Dados brutos ingeridos pelo Fivetran de plataformas de publicidade"
-    database: "{{ env_var('DBT_SNOWFLAKE_DATABASE', 'analytics') }}"
+    description: "Dados brutos ingeridos do Fivetran de plataformas de publicidade"
+    database: analytics
     schema: raw_marketing
     tables:
       
@@ -34,7 +34,7 @@ sources:
         columns:
           - name: id
             description: "Chave primária única da linha"
-            data_type: varchar
+            data_type: integer
             tests:
               - unique
               - not_null
@@ -50,7 +50,7 @@ sources:
             data_type: variant
             tests:
               - not_null
-
+        
       # -----------------------------------------------------------------------
       # FACEBOOK ADS
       # -----------------------------------------------------------------------
@@ -71,7 +71,7 @@ sources:
         columns:
           - name: id
             description: "Chave primária única da linha"
-            data_type: varchar
+            data_type: integer
             tests:
               - unique
               - not_null
@@ -87,7 +87,7 @@ sources:
             data_type: variant
             tests:
               - not_null
-
+        
       # -----------------------------------------------------------------------
       # TIKTOK ADS
       # -----------------------------------------------------------------------
@@ -108,7 +108,7 @@ sources:
         columns:
           - name: id
             description: "Chave primária única da linha"
-            data_type: varchar
+            data_type: integer
             tests:
               - unique
               - not_null

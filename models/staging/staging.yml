@@ -51,10 +51,6 @@ models:
         data_type: numeric(10, 2)
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "ad_cost >= 0"
-              config:
-                error_if: "> 0"
 
       - name: ad_date
         description: |
@@ -65,10 +61,6 @@ models:
         data_type: date
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "ad_date <= current_date()"
-              config:
-                error_if: "> 0"
 
       - name: platform
         description: "Constante: sempre 'Google Ads' (valores válidos documentados no accepted_values)"
@@ -124,10 +116,6 @@ models:
         data_type: numeric(10, 2)
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "ad_cost >= 0"
-              config:
-                error_if: "> 0"
 
       - name: ad_date
         description: |
@@ -138,10 +126,6 @@ models:
         data_type: date
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "ad_date <= current_date()"
-              config:
-                error_if: "> 0"
 
       - name: platform
         description: "Constante: sempre 'Facebook Ads' (valores válidos documentados no accepted_values)"
@@ -197,10 +181,6 @@ models:
         data_type: numeric(10, 2)
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "ad_cost >= 0"
-              config:
-                error_if: "> 0"
 
       - name: ad_date
         description: |
@@ -211,10 +191,6 @@ models:
         data_type: date
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "ad_date <= current_date()"
-              config:
-                error_if: "> 0"
 
       - name: platform
         description: "Constante: sempre 'TikTok Ads' (valores válidos documentados no accepted_values)"

@@ -26,38 +26,26 @@
 -- ============================================================================
 
 with source as (
-    -- Importa todos os registros da tabela bruta de Google Ads
-    select
-        *
-    from {{ source('fivetran_raw', 'raw_google_ads') }}
-),
-
-parsed_json as (
-    -- Extrai e converte os campos JSON para tipos apropriados
-    -- Snowflake usa a sintaxe: column:key::type para extração tipada
+    -- Importa todos os registros da tabela bruta de Google Ads do Fivetran
     select
         id as raw_id,
         synced_timestamp,
-        raw_payload:campaign_id::string as campaign_id,
-        raw_payload:campaign_name::string as campaign_name,
+        raw_payload
+    from {{ source('fivetran_raw', 'raw_google_ads') }}
+),
+
+parsed as (
+    -- Descompacta o JSON usando sintaxe nativa do Snowflake
+    select
+        raw_id,
+        synced_timestamp,
+        raw_payload:campaign_id::integer as campaign_id,
+        raw_payload:campaign_name::varchar as campaign_name,
         raw_payload:cost::numeric(10, 2) as ad_cost,
         raw_payload:date::date as ad_date,
         'Google Ads' as platform
     from source
-),
-
-final as (
-    -- Seleção e ordem das colunas para saída
-    select
-        raw_id,
-        synced_timestamp,
-        campaign_id,
-        campaign_name,
-        ad_cost,
-        ad_date,
-        platform
-    from parsed_json
 )
 
-select * from final
+select * from parsed
 

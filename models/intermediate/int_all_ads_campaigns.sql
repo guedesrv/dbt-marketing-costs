@@ -64,11 +64,36 @@ tiktok_ads as (
 
 unioned as (
     -- Consolida todos os dados de ads em uma única view
-    select * from google_ads
+    -- Cast campaign_id para varchar para UNION ALL consistent
+    select 
+        raw_id,
+        synced_timestamp,
+        campaign_id::varchar as campaign_id,
+        campaign_name,
+        ad_cost,
+        ad_date,
+        platform
+    from google_ads
     union all
-    select * from facebook_ads
+    select 
+        raw_id,
+        synced_timestamp,
+        campaign_id,
+        campaign_name,
+        ad_cost,
+        ad_date,
+        platform
+    from facebook_ads
     union all
-    select * from tiktok_ads
+    select 
+        raw_id,
+        synced_timestamp,
+        campaign_id,
+        campaign_name,
+        ad_cost,
+        ad_date,
+        platform
+    from tiktok_ads
 ),
 
 with_campaign_surrogate_key as (
@@ -76,7 +101,10 @@ with_campaign_surrogate_key as (
     -- única de campaign_id + platform. Isso garante identidade única
     -- entre plataformas.
     select
-        {{ dbt_utils.generate_surrogate_key(['campaign_id', 'platform']) }} as campaign_sk,
+        {{ dbt_utils.generate_surrogate_key([
+            'campaign_id',
+            'platform'
+        ]) }} as campaign_sk,
         raw_id,
         synced_timestamp,
         campaign_id,

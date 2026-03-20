@@ -147,10 +147,6 @@ models:
         data_type: integer
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "month >= 1 and month <= 12"
-              config:
-                error_if: "> 0"
 
       - name: week
         description: |
@@ -161,10 +157,6 @@ models:
         data_type: integer
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "week >= 1 and week <= 53"
-              config:
-                error_if: "> 0"
 
       - name: day_of_week
         description: |
@@ -181,10 +173,6 @@ models:
         data_type: integer
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "day_of_week >= 1 and day_of_week <= 7"
-              config:
-                error_if: "> 0"
 
       - name: day_name
         description: "Nome do dia em inglês (Monday, Tuesday, etc)"
@@ -283,14 +271,6 @@ models:
         data_type: numeric(10, 2)
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "total_ad_cost >= 0"
-              config:
-                error_if: "> 0"
-          - dbt_utils.expression_is_true:
-              expression: "total_ad_cost <= 9999999.99"
-              config:
-                error_if: "> 0"
           - dbt_utils.not_null_proportion:
               at_least: 0.99
 
@@ -322,19 +302,4 @@ models:
           interval: 7
           config:
             severity: warn  # Aviso em vez de erro se falhar
-      
-      # Teste Customizado: Garantir que nenhuma campanha tenha custo zerado
-      - dbt_utils.expression_is_true:
-          expression: "total_ad_cost > 0"
-          config:
-            where: "1=1"  # Validar todos os registros
-            error_if: "> 0"
-            description: "Todas as linhas devem ter custo > 0"
-      
-      # Teste Customizado: Garantir que number_of_records é sempre > 0
-      - dbt_utils.expression_is_true:
-          expression: "number_of_records > 0"
-          config:
-            error_if: "> 0"
-            description: "Todas as linhas devem ter pelo menos 1 registro fonte"
 

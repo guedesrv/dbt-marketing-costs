@@ -1,0 +1,9 @@
+id,synced_timestamp,raw_payload
+1,2023-10-01 10:00:00Z,"{""campaign_id"": 101, ""campaign_name"": ""Summer Campaign 2023"", ""cost"": 150.50, ""date"": ""2023-10-01""}"
+2,2023-10-02 10:00:00Z,"{""campaign_id"": 101, ""campaign_name"": ""Summer Campaign 2023"", ""cost"": 155.75, ""date"": ""2023-10-02""}"
+3,2023-10-01 10:00:00Z,"{""campaign_id"": 102, ""campaign_name"": ""Brand Awareness Q4"", ""cost"": 200.25, ""date"": ""2023-10-01""}"
+4,2023-10-02 10:00:00Z,"{""campaign_id"": 102, ""campaign_name"": ""Brand Awareness Q4"", ""cost"": 198.50, ""date"": ""2023-10-02""}"
+5,2023-10-01 10:00:00Z,"{""campaign_id"": 103, ""campaign_name"": ""Holiday Promo"", ""cost"": 300.00, ""date"": ""2023-10-01""}"
+6,2023-10-02 10:00:00Z,"{""campaign_id"": 103, ""campaign_name"": ""Holiday Promo"", ""cost"": 310.25, ""date"": ""2023-10-02""}"
+7,2023-10-01 10:00:00Z,"{""campaign_id"": 104, ""campaign_name"": ""Back to School"", ""cost"": 125.50, ""date"": ""2023-10-01""}"
+8,2023-10-02 10:00:00Z,"{""campaign_id"": 104, ""campaign_name"": ""Back to School"", ""cost"": 130.75, ""date"": ""2023-10-02""}"

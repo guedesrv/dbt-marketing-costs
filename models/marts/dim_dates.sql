@@ -21,7 +21,7 @@ with date_range as (
     select
         dateadd(
             day,
-            row_number() over (order by null) - 1,
+            seq4(),
             (select min(ad_date) from {{ ref('int_all_ads_campaigns') }})
         ) as full_date
     from table(generator(rowcount => 730))  -- 2 anos de datas
