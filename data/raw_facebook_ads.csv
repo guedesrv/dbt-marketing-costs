@@ -1,9 +1,0 @@
-id,synced_timestamp,raw_payload
-1,2023-10-01 10:00:00Z,"{""campaign_id"": ""A1"", ""campaign_name"": ""Brand Awareness"", ""amount_spent"": 200.00, ""spending_date"": ""2023-10-01""}"
-2,2023-10-02 10:00:00Z,"{""campaign_id"": ""A1"", ""campaign_name"": ""Brand Awareness"", ""amount_spent"": 210.50, ""spending_date"": ""2023-10-02""}"
-3,2023-10-01 10:00:00Z,"{""campaign_id"": ""A2"", ""campaign_name"": ""Conversion Campaign"", ""amount_spent"": 250.75, ""spending_date"": ""2023-10-01""}"
-4,2023-10-02 10:00:00Z,"{""campaign_id"": ""A2"", ""campaign_name"": ""Conversion Campaign"", ""amount_spent"": 255.25, ""spending_date"": ""2023-10-02""}"
-5,2023-10-01 10:00:00Z,"{""campaign_id"": ""A3"", ""campaign_name"": ""Engagement Drive"", ""amount_spent"": 175.50, ""spending_date"": ""2023-10-01""}"
-6,2023-10-02 10:00:00Z,"{""campaign_id"": ""A3"", ""campaign_name"": ""Engagement Drive"", ""amount_spent"": 180.00, ""spending_date"": ""2023-10-02""}"
-7,2023-10-01 10:00:00Z,"{""campaign_id"": ""A4"", ""campaign_name"": ""Remarketing"", ""amount_spent"": 300.25, ""spending_date"": ""2023-10-01""}"
-8,2023-10-02 10:00:00Z,"{""campaign_id"": ""A4"", ""campaign_name"": ""Remarketing"", ""amount_spent"": 305.50, ""spending_date"": ""2023-10-02""}"

@@ -9,7 +9,7 @@
 -- Regras de Negócio:
 --   - Tabela pequena e estática (apenas 3 plataformas)
 --   - Cada plataforma tem um platform_sk (Surrogate Key)
---   - Dados carregados manualmente ou via dbt seed
+--   - Dados definidos como VALUES inline (sem dependência externa)
 --
 -- Saída de colunas:
 --   platform_sk, platform_name, platform_description

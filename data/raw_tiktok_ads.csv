@@ -1,9 +1,0 @@
-id,synced_timestamp,raw_payload
-1,2023-10-01 10:00:00Z,"{""camp_id"": ""T1"", ""camp_name"": ""Summer Promo"", ""spend"": 50.00, ""stat_time"": ""2023-10-01""}"
-2,2023-10-02 10:00:00Z,"{""camp_id"": ""T1"", ""camp_name"": ""Summer Promo"", ""spend"": 52.50, ""stat_time"": ""2023-10-02""}"
-3,2023-10-01 10:00:00Z,"{""camp_id"": ""T2"", ""camp_name"": ""Viral Challenge"", ""spend"": 75.25, ""stat_time"": ""2023-10-01""}"
-4,2023-10-02 10:00:00Z,"{""camp_id"": ""T2"", ""camp_name"": ""Viral Challenge"", ""spend"": 78.75, ""stat_time"": ""2023-10-02""}"
-5,2023-10-01 10:00:00Z,"{""camp_id"": ""T3"", ""camp_name"": ""Influencer Collab"", ""spend"": 100.50, ""stat_time"": ""2023-10-01""}"
-6,2023-10-02 10:00:00Z,"{""camp_id"": ""T3"", ""camp_name"": ""Influencer Collab"", ""spend"": 105.00, ""stat_time"": ""2023-10-02""}"
-7,2023-10-01 10:00:00Z,"{""camp_id"": ""T4"", ""camp_name"": ""Product Launch"", ""spend"": 150.25, ""stat_time"": ""2023-10-01""}"
-8,2023-10-02 10:00:00Z,"{""camp_id"": ""T4"", ""camp_name"": ""Product Launch"", ""spend"": 155.50, ""stat_time"": ""2023-10-02""}"
