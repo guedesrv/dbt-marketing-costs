@@ -21,15 +21,47 @@
 
 ### O Problema
 
-Três plataformas de publicidade (Google Ads, Facebook Ads, TikTok Ads) enviam dados para o Snowflake via Fivetran em **formato JSON não normalizado**:
+Três plataformas de publicidade (Google Ads, Facebook Ads, TikTok Ads) enviam dados para o Snowflake via Fivetran em **formato JSON não normalizado**. As tabelas brutas contêm:
 
-- **Google Ads**: `{"campaign_id": 1, "cost": 150.50, "date": "2023-10-01"}`
-- **Facebook Ads**: `{"campaign_id": "A1", "amount_spent": 200.00, "spending_date": "2023-10-01"}`
-- **TikTok Ads**: `{"camp_id": "T1", "spend": 50.00, "stat_time": "2023-10-01"}`
+#### Tabela: `analytics.raw_marketing.raw_google_ads`
+Colunas Snowflake: `id`, `synced_timestamp`, `raw_payload`
+```json
+{
+  "campaign_id": 1,
+  "campaign_name": "Summer Campaign 2023",
+  "cost": 150.50,
+  "date": "2023-10-01"
+}
+```
+
+#### Tabela: `analytics.raw_marketing.raw_facebook_ads`
+Colunas Snowflake: `id`, `synced_timestamp`, `raw_payload`
+```json
+{
+  "campaign_id": "A1",
+  "campaign_name": "Brand Awareness",
+  "amount_spent": 200.00,
+  "spending_date": "2023-10-01"
+}
+```
+
+#### Tabela: `analytics.raw_marketing.raw_tiktok_ads`
+Colunas Snowflake: `id`, `synced_timestamp`, `raw_payload`
+```json
+{
+  "camp_id": "T1",
+  "camp_name": "Summer Promo",
+  "spend": 50.00,
+  "stat_time": "2023-10-01"
+}
+```
 
 **Desafios**:
-- Nomes de colunas diferentes por plataforma
-- Estruturas JSON variadas requerendo parsing customizado
+- Nomes de colunas JSON diferentes por plataforma (cost vs amount_spent vs spend)
+- Nomes de campos de data variados (date vs spending_date vs stat_time)
+- Nomes de IDs não padronizados (campaign_id vs camp_id, campaign_name vs camp_name)
+- Tipos de dados inconsistentes (campaign_id: integer no Google, varchar no Facebook/TikTok)
+- Estruturas JSON variadas requerendo parsing customizado para cada fonte
 - Colisão de IDs entre plataformas (múltiplas fontes)
 - Formato não ideal para ferramentas de BI (Metabase)
 
@@ -300,13 +332,13 @@ Esperado: "✓ Connection ok!"
 
 ### Dados de Exemplo (Fivetran JSON)
 
-Este projeto trabalha com **dados JSON do Fivetran** na coluna `raw_payload`. Os dados chegam em 3 tabelas brutas:
+Este projeto trabalha com **dados JSON do Fivetran** que chegam em 3 tabelas brutas no schema `analytics.raw_marketing`:
 
-| Tabela | Plataforma | Coluna JSON | Tipo |
-|--------|-----------|------------|------|
-| `raw_google_ads` | Google Ads | raw_payload (variant) | JSON |
-| `raw_facebook_ads` | Facebook Ads | raw_payload (variant) | JSON |
-| `raw_tiktok_ads` | TikTok Ads | raw_payload (variant) | JSON |
+| Tabela | Plataforma | Colunas Snowflake | Campos JSON |
+|--------|-----------|---------|------------|
+| `raw_google_ads` | Google Ads | id (INT), synced_timestamp (TIMESTAMP), raw_payload (VARIANT) | campaign_id (int), campaign_name, cost, date |
+| `raw_facebook_ads` | Facebook Ads | id (INT), synced_timestamp (TIMESTAMP), raw_payload (VARIANT) | campaign_id (string), campaign_name, amount_spent, spending_date |
+| `raw_tiktok_ads` | TikTok Ads | id (INT), synced_timestamp (TIMESTAMP), raw_payload (VARIANT) | camp_id, camp_name, spend, stat_time |
 
 #### Opção 1: Usar Fivetran Real
 
@@ -355,28 +387,33 @@ Agora execute o pipeline:
 dbt run
 
 # Saída esperada (resultado real do projeto):
-# 02:21:08  Finished running 4 table models, 3 view models in 0 hours 0 minutes and 8.08 seconds (8.08s).
-# 02:21:09  Completed successfully
+# 16:34:43  Finished running 4 table models, 3 view models in 0 hours 0 minutes and 8.44 seconds.
+# 16:34:43  Completed successfully
 # Done. PASS=7 WARN=0 ERROR=0 SKIP=0 TOTAL=7
 
 # Validar com testes
 dbt test
 
 # Saída esperada:
-# 16:14:24  Done. PASS=76 WARN=1 ERROR=0 SKIP=0 TOTAL=77
+# 16:36:02  Done. PASS=74 WARN=1 ERROR=0 SKIP=0 TOTAL=77
 ```
 
 **Resultados de Execução** ✅:
 - **dbt run**: 7/7 modelos criados com sucesso
   - 3 staging views (stg_google_ads, stg_facebook_ads, stg_tiktok_ads)
   - 1 intermediate ephemeral (int_all_ads_campaigns)
-  - 3 dimensão tables (dim_campaigns, dim_dates, dim_platforms)
-  - 1 fact table (fct_campaign_performance)
+  - 4 marts tables (3 dimensões + 1 fato):
+    - dim_campaigns, dim_dates, dim_platforms (dimensões)
+    - fct_campaign_performance (fato)
 
-- **dbt test**: 76/77 testes passando (1 warning esperado em integridade de FK)
-  - Generic tests: not_null, unique, accepted_values
+- **dbt test**: 74/77 testes passando (1 warning esperado em integridade de FK)
+  - Generic tests: not_null, unique, accepted_values, relationships
   - Custom tests: test_expected_platforms, test_fct_no_duplicates, test_negative_costs, test_future_dates
   - Source tests: raw_google_ads, raw_facebook_ads, raw_tiktok_ads
+
+- **dbt build**: 86 PASS + 1 WARN + 0 ERRORS (87 total)
+  - Modelos e testes executados em uma única passada
+  - Tempo total: 14.19s
 
 ---
 
@@ -639,20 +676,47 @@ prod:
 
 ### Parsing JSON por Plataforma ✅
 
-Todos os modelos implementam parsing JSON nativo do Snowflake:
+Todos os modelos implementam parsing JSON nativo do Snowflake com mapeamento de campos específicos:
 
+#### Google Ads (stg_google_ads.sql)
 ```sql
--- Google Ads: campaign_id como INTEGER
-raw_payload:campaign_id::integer as campaign_id
-raw_payload:cost::numeric(10, 2) as ad_cost
+-- Extração do raw_payload
+raw_payload:campaign_id::integer as campaign_id             -- Type: INTEGER
+raw_payload:campaign_name::varchar as campaign_name         -- Type: VARCHAR
+raw_payload:cost::numeric(10, 2) as ad_cost                 -- Extrai field: cost
+raw_payload:date::date as ad_date                           -- Extrai field: date
+```
 
--- Facebook Ads: campaign_id como VARCHAR "A1"
-raw_payload:campaign_id::varchar as campaign_id
-raw_payload:amount_spent::numeric(10, 2) as ad_cost
+#### Facebook Ads (stg_facebook_ads.sql)
+```sql
+-- Extração do raw_payload (campos com NOMES DIFERENTES)
+raw_payload:campaign_id::varchar as campaign_id             -- Type: VARCHAR (string "A1")
+raw_payload:campaign_name::varchar as campaign_name         -- Type: VARCHAR
+raw_payload:amount_spent::numeric(10, 2) as ad_cost         -- ⚠️ Campo: amount_spent (não cost)
+raw_payload:spending_date::date as ad_date                  -- ⚠️ Campo: spending_date (não date)
+```
 
--- TikTok Ads: camp_id e spend (nomes diferentes)
-raw_payload:camp_id::varchar as campaign_id
-raw_payload:spend::numeric(10, 2) as ad_cost
+#### TikTok Ads (stg_tiktok_ads.sql)
+```sql
+-- Extração do raw_payload (campos com NOMES DIFERENTES)
+raw_payload:camp_id::varchar as campaign_id                 -- ⚠️ Campo: camp_id (não campaign_id)
+raw_payload:camp_name::varchar as campaign_name             -- ⚠️ Campo: camp_name (não campaign_name)
+raw_payload:spend::numeric(10, 2) as ad_cost                -- ⚠️ Campo: spend (não cost)
+raw_payload:stat_time::date as ad_date                      -- ⚠️ Campo: stat_time (não date)
+```
+
+**Resultado Esperado (Canonical Schema)**:
+```sql
+-- Todas as tabelas staging normalizam para este padrão:
+SELECT 
+  raw_id,                    -- De: id (coluna Snowflake)
+  synced_timestamp,          -- De: synced_timestamp (coluna Snowflake)
+  campaign_id,               -- Normalizado de: campaign_id / camp_id
+  campaign_name,             -- Normalizado de: campaign_name / camp_name
+  ad_cost,                   -- Normalizado de: cost / amount_spent / spend
+  ad_date,                   -- Normalizado de: date / spending_date / stat_time
+  platform                   -- Constante: 'Google Ads' / 'Facebook Ads' / 'TikTok Ads'
+FROM stg_google_ads          -- Ou stg_facebook_ads ou stg_tiktok_ads
 ```
 
 ### Chaves Substitutas Geradas com dbt_utils
